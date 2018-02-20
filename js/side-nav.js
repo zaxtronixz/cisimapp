@@ -5,6 +5,7 @@
   
 
 	function openMenuBtn() {
+				mapClick.infowindow.close();
 		    	document.getElementById("mySidenav")
 		    	.style.width = "300px";
 				}

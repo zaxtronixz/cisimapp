@@ -80,11 +80,14 @@
 					  		<select class="form-control square-border" id="assetName">
 					    		<option>Transformer</option>
 					    		<option>EHV lines &amp; Tower</option>
-					     		<option>Distr. underground lines</option>
-					    		<option>Elect. grid Operation </option>
+					     		<option>Distribution underground lines</option>
+					    		<option>Electric grid Operation</option>
 					         	<option>Antennae</option>
 					    		<option>Base Station Building</option>
-					       		<option>Set Up/down SubStation</option>
+					       		<option>Step Up/down SubStation</option>
+					       		<option>Cable landing Station</option>
+					       		<option>Fossil Fuel Plant</option>
+					       		<option>Wired Copper Cable</option>
 					   		</select>
 						</div>        
 					      	        
@@ -105,7 +108,7 @@
 						</div>
 
 						<div>
-							<button type="button"  onclick="createAsset()" class="btn square-border">Create Asset</button>
+							<button type="button"  onclick="assetCreator()" class="btn square-border">Create Asset</button>
 						</div>
 					</form>
 				</div>
@@ -157,14 +160,19 @@ document.write(new Date().getFullYear());
 
 		<script type="text/javascript">
 
+
+			var mapClick = {};
 			function initMap(){
 				// user's input is inserte into the autocomplete object
+				
 				var userInput = document.getElementById('userInput');
 				var auto = new google.maps.places.Autocomplete(userInput)
 
 				var map;
 				// map is loaded into a <div> based on the user's input 
-				auto.addListener('place_changed', function(){    			var place = auto.getPlace();
+				auto.addListener('place_changed', 
+					function(){
+					var place = auto.getPlace();
     				// retrieve the value of the latitude and longitude
 					var lngi = place.geometry.viewport.f.b;
 					var lati = place.geometry.viewport.f.f;
@@ -185,38 +193,52 @@ document.write(new Date().getFullYear());
       				// controlling the map zoom value using 
       				// getting position of click event
 					  google.maps.event.addListener(map, 'click', function(event) {
-					  
-					    var latitude  = event.latLng.lat();
-					    var longitude = event.latLng.lng();
-
+					  	
+					   	mapClick.coord = {
+					  			lat: event.latLng.lat(),
+					  			lng: event.latLng.lng()
+					  	}
+					     
 					 // information window is displayed at click position
-					   	var infowindow = new google.maps.InfoWindow({
+					   	mapClick.infowindow = new google.maps.InfoWindow({
 					    	content: contentString,
-					    	position:{lat:latitude, lng:longitude}
+					    	position:mapClick.coord
 					  	});
-					 	var coord = {lat:latitude, lng:longitude}
-					  	infowindow.open(map);
+					 	
+					  	mapClick.infowindow.open(map);
 
-					      	function createAsset(){
-					      		infowindow.close();
-					      		
-					      		var x = document.getElementById("assetName").selectedIndex;
-	    						var y = document.getElementById("assetName").options;
-					      	 	var marker = new google.maps.Marker({
-				          		position: coord,
-				          		map: map,
-				          		title: x[x].text
-				       		 });
-					      	}
 				      });
 
 				});
-         			// map.setCenter(marker.getPosition());
+
+			    mapClick.createAsset = function (){
+		      		this.infowindow.close();
+		      		
+		      		this.x = document.getElementById("assetName").selectedIndex;
+					this.y = document.getElementById("assetName").options;
+
+					var selectedAss = this.y[this.x].text;
+		      	 	var marker = new google.maps.Marker({
+	          		position: this.coord,
+	          		map: map,
+	          		title: selectedAss,
+	          		icon:customMarker(selectedAss)
+	       		 });
+		      	}
+
+
        		};
+
+       		function assetCreator(){
+				return mapClick.createAsset()
+         			// map.setCenter(marker.getPosition());
+			}
 		
 			
 
 		</script>
+
+		<script src ="js/custom-marker.js" ></script>
 		<script src="js/side-nav.js"></script>
 
 		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAeUJvIDikvb8VbCj4NZmIrtoIktpyA-pc&libraries=places&callback=initMap"
